@@ -1,52 +1,68 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Easing } from 'react-native';
 import { gql, useQuery } from '@apollo/client';
-import * as SecureStore from 'expo-secure-store';
+import { Animated } from 'react-native';
+import { TotalSummarySquare } from '../components/summary/total-summary';
+import { Expense } from '../model/Expense';
+import { useLazyQuery } from '@apollo/react-hooks';
+import { User } from '../model/User';
+import { BasicLeisureSummary } from '../components/summary/basic-leisure-summary';
 
 const EXPENSES_QUERY = gql`
   query {
-    expenses {
+    users {
       description
       cost
     }
   }
 `;
 
-type Expense = {
-  description: string,
-  cost: number
-};
-
-export function SummaryScreen() {
-  const { data, loading } = useQuery(EXPENSES_QUERY);
+export function SummaryScreen(props: { user?: User, logged: boolean, displayed: boolean }) {
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
+  const [totalLimit, setTotalLimit] = React.useState(0);
+
+  const [basicTotal, setBasicTotal] = React.useState(0);
+  const [leisureTotal, setLeisureTotal] = React.useState(0);
+
+  function computeTotals(expenses: Expense[]) {
+    let basic = 0;
+    let leisure = 0;
+    expenses.forEach(e => e.isBasic ? basic += e.cost : leisure += e.cost);
+    setBasicTotal(basic);
+    setLeisureTotal(leisure);
+  }
+
+  const [canAnimate, setAnimate] = React.useState(false);
 
   React.useEffect(() => {
-    setExpenses(data.expenses);
-  }, [data]);
+    if (props.user) {
+      setExpenses(props.user.expenses);
+      setTotalLimit(props.user.totalLimit);
+      computeTotals(props.user.expenses);
+    }
+  }, [props.logged]);
 
-  if (loading)
-    return <Text>Loading...</Text>
+  React.useEffect(() => {
+    if (props.displayed && expenses.length) {
+      animate();
+    }
+  }, [props.displayed, expenses])
+
+  function animate() {
+    setAnimate(true);
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Resumen</Text>
-      <View style={styles.borderedSquare}>
-        <View style={summaryStyles.row}>
-          <Text style={summaryStyles.currentNumber}>{expenses.reduce((prev, current) => prev + current.cost, 0)}€</Text>
-          <View style={summaryStyles.totalContainer}>
-            <Text style={[summaryStyles.totalText, {fontSize: 16, fontWeight: 'bold'}]}>Total</Text>
-            <Text style={summaryStyles.totalText}>1200€</Text>
-          </View>
-        </View>
-        <View style={[summaryStyles.row, {paddingTop: 0}]}>
-          <View style={summaryStyles.totalProgessBar}>
-
-          </View>
-        </View>
-      </View>
-      <View style={styles.borderedSquare}></View>
-      <View style={[styles.borderedSquare, { height: 400 }]}>
-        <Text style={{ fontWeight: "bold" }}>{JSON.stringify(data)}</Text>
+      <TotalSummarySquare basicTotal={basicTotal} leisureTotal={leisureTotal} totalLimit={totalLimit} canAnimate={canAnimate}/>
+      <BasicLeisureSummary basicTotal={basicTotal} leisureTotal={leisureTotal}
+        totalLimit={totalLimit}
+        basicPercentage={props.user?.basicPercentage}
+        leisurePercentage={props.user?.leisurePercentage}
+        canAnimate={canAnimate} />
+      <View style={[styles.borderedSquare]}>
+        <Text style={{ fontWeight: "bold" }}>{JSON.stringify(expenses)}</Text>
       </View>
     </View>
   )
