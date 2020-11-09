@@ -6,9 +6,8 @@ import { SummaryScreen } from './screens/summary';
 import * as SecureStore from 'expo-secure-store';
 import { Animated, Easing, View, Dimensions } from 'react-native';
 import { User } from './model/User';
-import { Expense } from './model/Expense';
 
-const httpLink = createHttpLink({ uri: 'http://192.168.0.18:4000/' });
+const httpLink = createHttpLink({ uri: 'http://192.168.0.17:4000/' });
 const client = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),

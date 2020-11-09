@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, Easing } from 'react-native';
-import { gql, useQuery } from '@apollo/client';
-import { Animated } from 'react-native';
+import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { gql } from '@apollo/client';
+import { Dimensions } from 'react-native';
 import { TotalSummarySquare } from '../components/summary/total-summary';
 import { Expense } from '../model/Expense';
-import { useLazyQuery } from '@apollo/react-hooks';
 import { User } from '../model/User';
 import { BasicLeisureSummary } from '../components/summary/basic-leisure-summary';
-
+import { AddExpenseScreen } from './add-expense';
+const deviceWidth = Dimensions.get('window').width;
 const EXPENSES_QUERY = gql`
   query {
     users {
@@ -24,6 +24,7 @@ export function SummaryScreen(props: { user?: User, logged: boolean, displayed: 
   const [basicTotal, setBasicTotal] = React.useState(0);
   const [leisureTotal, setLeisureTotal] = React.useState(0);
 
+  const [modalAnimate, setModalAnimate] = React.useState(false);
   function computeTotals(expenses: Expense[]) {
     let basic = 0;
     let leisure = 0;
@@ -53,26 +54,32 @@ export function SummaryScreen(props: { user?: User, logged: boolean, displayed: 
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Resumen</Text>
-      <TotalSummarySquare basicTotal={basicTotal} leisureTotal={leisureTotal} totalLimit={totalLimit} canAnimate={canAnimate}/>
-      <BasicLeisureSummary basicTotal={basicTotal} leisureTotal={leisureTotal}
-        totalLimit={totalLimit}
-        basicPercentage={props.user?.basicPercentage}
-        leisurePercentage={props.user?.leisurePercentage}
-        canAnimate={canAnimate} />
-      <View style={[styles.borderedSquare]}>
-        <Text style={{ fontWeight: "bold" }}>{JSON.stringify(expenses)}</Text>
+    <>
+      <View style={{ flex: 1, justifyContent: 'space-between', padding: 40 }}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Resumen</Text>
+          <TotalSummarySquare basicTotal={basicTotal} leisureTotal={leisureTotal} totalLimit={totalLimit} canAnimate={canAnimate}/>
+          <BasicLeisureSummary basicTotal={basicTotal} leisureTotal={leisureTotal}
+            totalLimit={totalLimit}
+            basicPercentage={props.user?.basicPercentage}
+            leisurePercentage={props.user?.leisurePercentage}
+            canAnimate={canAnimate} />
+          <View style={[styles.borderedSquare]}>
+            <Text style={{ fontWeight: "bold" }}>{JSON.stringify(expenses)}</Text>
+          </View>
+        </View>
+        <TextInput style={styles.newExpenseInput} placeholder="New expense..." onFocus={() => setModalAnimate(true)}></TextInput>
       </View>
-    </View>
+      { modalAnimate && <AddExpenseScreen back={() => setModalAnimate(false)} canAnimate={modalAnimate}></AddExpenseScreen> }
+    </>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 40,
-    paddingTop: 80,
-    flexDirection: 'column'
+    paddingTop: 40,
+    flexDirection: 'column',
+    flex: 1
   },
   title: {
     fontWeight: "900",
@@ -87,6 +94,17 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderWidth: 1,
     marginTop: 30,
+  },
+  newExpenseInput: {
+    borderColor: '#CCCCCC',
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: 20,
+    fontWeight: '900',
+    color: '#484848',
+    fontSize: 16,
+    marginBottom: 10,
+    width: '100%'
   }
 });
 

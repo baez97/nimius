@@ -1,4 +1,4 @@
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React from 'react';
 import { Text, View, Image, StyleSheet, TextInput, Easing } from 'react-native';
 import { AppLoading } from 'expo';
@@ -55,6 +55,7 @@ export function WelcomeScreen(props: { setUser: (token: string, user: User) => v
       setTimeout(() => props.setUser(r.data.login.token, r.data.login.user), 300)
     } catch (e) {
       const errors = e.graphQLErrors;
+      console.log(e);
       if (!errors) throw e;
       const error = errors[0];
       if (error.message === 'No user found' || error.message === 'Invalid password') {

@@ -11,6 +11,10 @@
     "@apollo/client": "^3.2.5",
     "@apollo/react-hooks": "^4.0.0",
     "@bankify/react-native-animate-number": "^0.2.1",
+    "@react-native-community/masked-view": "^0.1.10",
+    "@react-navigation/native": "^5.8.2",
+    "@react-navigation/stack": "^5.11.1",
+    "@types/unsplash-js": "^6.3.1",
     "expo": "~39.0.2",
     "expo-secure-store": "^9.2.0",
     "expo-status-bar": "~1.0.2",
@@ -19,7 +23,13 @@
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.3.tar.gz",
     "react-native-dash": "0.0.11",
-    "react-native-web": "~0.13.12"
+    "react-native-gesture-handler": "^1.8.0",
+    "react-native-reanimated": "^1.13.1",
+    "react-native-safe-area-context": "^3.1.8",
+    "react-native-screens": "^2.12.0",
+    "react-native-web": "~0.13.12",
+    "react-navigation": "^4.4.3",
+    "unsplash-js": "^6.3.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
